@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
 
+#needed commands
+#pip3 install paho-mqtt
+#curl https://get.pimoroni.com/displayotron | bash
+
 import paho.mqtt.client as mqtt  
 import dothat.lcd as lcd  #import for display
 
