@@ -12,7 +12,7 @@ def on_connect(client, userdata, flags, rc):
 def on_message(client, userdata, msg):  #triggers on an update
     #need to add a clear display
     if msg.topic.find('/374586/') != -1:  #checks if the topic is the needed one
-        print(msg.topic + " " + float(msg.payload))
+        #print(msg.topic + " " + float(msg.payload))
         if msg.topic.find('sensor1') != -1:
             lcd.set_cursor_position(0,0)
             lcd.write('pm10 ' + float(msg.payload))
