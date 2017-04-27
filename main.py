@@ -42,7 +42,7 @@ def on_message(client, userdata, msg):  #triggers on an update
             value = value.strip("'")
             lcd.write('pm25')
             lcd.set_cursor_position(11, 1)  #writes the numerical value under the word
-            colours(int(value))
+            colours(float(value))
             lcd.write(value)
             
             #tempfile = open('temp.txt', 'r')
