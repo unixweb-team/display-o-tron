@@ -32,9 +32,9 @@ def on_message(client, userdata, msg):  #triggers on an update
             value = value.strip("'")
             lcd.write('pm10 ' + value)
             
-            temp = open('temp.txt', 'w')
-            temp.write(value)
-            temp.close()
+            #temp = open('temp.txt', 'w')
+            #temp.write(value)
+            #temp.close()
             
         if msg.topic.find('sensor2') != -1:
             lcd.set_cursor_position(11,0)
@@ -42,17 +42,18 @@ def on_message(client, userdata, msg):  #triggers on an update
             value = value.strip("'")
             lcd.write('pm25')
             lcd.set_cursor_position(11, 1)  #writes the numerical value under the word
+            colours(value)
             lcd.write(value)
             
-            tempfile = open('temp.txt', 'r')
-            temp = tempfile.readlines()[0]
-            value = float(value) + float(temp)
-            value = value / 2  #gets average value for colour of backlight
-            tempfile.close()
+            #tempfile = open('temp.txt', 'r')
+            #temp = tempfile.readlines()[0]
+            #value = float(value) + float(temp)
+            #value = value / 2  #gets average value for colour of backlight
+            #tempfile.close()
 
-            temp = open('temp.txt', 'w')
-            temp.write(str(value))  #writes value to file for usage later
-            temp.close()
+            #temp = open('temp.txt', 'w')
+            #temp.write(str(value))  #writes value to file for usage later
+            #temp.close()
             
         if msg.topic.find('sensor3') != -1:
             lcd.set_cursor_position(0,1)
@@ -65,10 +66,10 @@ def on_message(client, userdata, msg):  #triggers on an update
             value = str(msg.payload).strip("b")
             value = value.strip("'")
             lcd.write('hum ' + value)
-            tempfile = open('temp.txt', 'r')
-            temp = tempfile.readlines()[0]
-            colours(float(temp))
-            tempfile.close()            
+            #tempfile = open('temp.txt', 'r')
+            #temp = tempfile.readlines()[0]
+            #colours(float(temp))
+            #tempfile.close()            
     
 backlight.off()  #clears colours
 client = mqtt.Client()
