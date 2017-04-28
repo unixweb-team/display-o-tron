@@ -7,8 +7,7 @@
 import paho.mqtt.client as mqtt  
 import dothat.backlight as backlight
 import dothat.lcd as lcd  #import for display
-
-# This is the Subscriber
+import dothat.touch as nav  #import for buttons
 
 def on_connect(client, userdata, flags, rc):
     print("Connected with result code " +str(rc))
@@ -25,51 +24,64 @@ def on_message(client, userdata, msg):  #triggers on an update
         elif value > 10:
             backlight.rgb(0, 238, 118)  #green
             
+    def replace_line(file_name, line_num, text):
+        lines = open(file_name, 'r').readlines()
+        lines[line_num] = text  #to save sensor values to call later
+        out = open(file_name, 'w')
+        out.writelines(lines)
+        out.close()
+    
     if msg.topic.find('/374586/') != -1:  #checks if the topic is the needed one
         if msg.topic.find('sensor1') != -1:
-            lcd.set_cursor_position(0,0)
+            #lcd.set_cursor_position(0,0)
             value = str(msg.payload).strip("b")  #strips unneeded parts from the values
             value = value.strip("'")
-            lcd.write('pm10 ' + value)
-            
-            #temp = open('temp.txt', 'w')
-            #temp.write(value)
-            #temp.close()
+            replace_line('temp.txt', 0, value)
+            #lcd.write('pm10 ' + value)
             
         if msg.topic.find('sensor2') != -1:
-            lcd.set_cursor_position(11,0)
+            #lcd.set_cursor_position(11,0)
             value = str(msg.payload).strip("b")
             value = value.strip("'")
-            lcd.write('pm25')
-            lcd.set_cursor_position(11, 1)  #writes the numerical value under the word
+            #lcd.write('pm25')
+            #lcd.set_cursor_position(11, 1)  #writes the numerical value under the word
             colours(float(value))
-            lcd.write(value)
-            
-            #tempfile = open('temp.txt', 'r')
-            #temp = tempfile.readlines()[0]
-            #value = float(value) + float(temp)
-            #value = value / 2  #gets average value for colour of backlight
-            #tempfile.close()
-
-            #temp = open('temp.txt', 'w')
-            #temp.write(str(value))  #writes value to file for usage later
-            #temp.close()
+            replace_line('temp.txt', 1, value)
+            #lcd.write(value)
             
         if msg.topic.find('sensor3') != -1:
-            lcd.set_cursor_position(0,1)
+            #lcd.set_cursor_position(0,1)
             value = str(msg.payload).strip("b")
             value = value.strip("'")
-            lcd.write('temp ' + value)
+            replace_line('temp.txt', 2, value)
+            #lcd.write('temp ' + value)
             
         if msg.topic.find('sensor4') != -1:
-            lcd.set_cursor_position(0,2)
+            #lcd.set_cursor_position(0,2)
             value = str(msg.payload).strip("b")
             value = value.strip("'")
-            lcd.write('hum ' + value)
-            #tempfile = open('temp.txt', 'r')
-            #temp = tempfile.readlines()[0]
-            #colours(float(temp))
-            #tempfile.close()            
+            replace_line('temp.txt', 3, value)
+            #lcd.write('hum ' + value)     
+
+@nav.on(nav.LEFT)
+def handle_left(ch, evt):
+    lcd.clear()
+    lcd.set_cursor_position(0,0)
+    tempfile = open('temp.txt', 'r').readlines()
+    lcd.write("pm10:" + float(tempfile[0]))
+    lcd.set_cursor_position(0, 1)
+    lcd.write("pm25:"+ float(tempfile[1]))
+    tempfile.close()
+
+@nav.on(nav.RIGHT)
+def handle_right(ch, evt):
+    lcd.clear()
+    lcd.set_cursor_position(0,0)
+    tempfile = open('temp.txt', 'r').readlines()
+    lcd.write("temp:" + float(tempfile[2]))
+    lcd.set_cursor_position(0, 1)
+    lcd.write("humidity:"+ float(tempfile[3]))
+    tempfile.close()
     
 backlight.off()  #clears colours
 client = mqtt.Client()
