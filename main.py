@@ -1,4 +1,13 @@
 #!/usr/bin/env python3
+# -*- coding: <utf-8> -*-
+
+#Author: Callum Pritchard, Joachim Hummel
+#Project Name: Display-o-Tron Weather
+#Project Description: Getting weather sensor data from mqtt, parsing the data and then displaying it to the display
+#Version Number: 0.7
+#Date: 28/4/17
+#Release State: Alpha testing
+#Changes: Adding skeleton values to temp.txt so it functions correctly
 
 #needed commands
 #pip3 install paho-mqtt
@@ -24,65 +33,57 @@ def on_message(client, userdata, msg):  #triggers on an update
         elif value > 10:
             backlight.rgb(0, 238, 118)  #green
             
-    def replace_line(file_name, line_num, text):
-        lines = open(file_name, 'r').readlines()
-        lines[line_num] = text  #to save sensor values to call later
-        out = open(file_name, 'w')
+    def replace_line(line_num, text):
+        file = open('temp.txt', 'r')
+        lines = file.readlines()
+        print(lines)
+        lines[line_num] = text + '\n'  #to save sensor values to call later
+        out = open('temp.txt', 'w')
         out.writelines(lines)
         out.close()
     
     if msg.topic.find('/374586/') != -1:  #checks if the topic is the needed one
+        value = str(msg.payload).strip("b")
+        value = value.strip("'")
         if msg.topic.find('sensor1') != -1:
-            #lcd.set_cursor_position(0,0)
-            value = str(msg.payload).strip("b")  #strips unneeded parts from the values
-            value = value.strip("'")
-            replace_line('temp.txt', 0, value)
-            #lcd.write('pm10 ' + value)
+            replace_line(0, value)
             
         if msg.topic.find('sensor2') != -1:
-            #lcd.set_cursor_position(11,0)
-            value = str(msg.payload).strip("b")
-            value = value.strip("'")
-            #lcd.write('pm25')
-            #lcd.set_cursor_position(11, 1)  #writes the numerical value under the word
             colours(float(value))
-            replace_line('temp.txt', 1, value)
-            #lcd.write(value)
+            replace_line(1, value)
             
         if msg.topic.find('sensor3') != -1:
-            #lcd.set_cursor_position(0,1)
-            value = str(msg.payload).strip("b")
-            value = value.strip("'")
-            replace_line('temp.txt', 2, value)
-            #lcd.write('temp ' + value)
+            replace_line(2, value)
             
         if msg.topic.find('sensor4') != -1:
-            #lcd.set_cursor_position(0,2)
-            value = str(msg.payload).strip("b")
-            value = value.strip("'")
-            replace_line('temp.txt', 3, value)
-            #lcd.write('hum ' + value)     
+            replace_line(3, value)
 
 @nav.on(nav.LEFT)
 def handle_left(ch, evt):
     lcd.clear()
     lcd.set_cursor_position(0,0)
-    tempfile = open('temp.txt', 'r').readlines()
-    lcd.write("pm10:" + float(tempfile[0]))
+    file = open('temp.txt', 'r')
+    tempfile = file.readlines()
+    lcd.write("pm10:" + str(tempfile[0]))
     lcd.set_cursor_position(0, 1)
-    lcd.write("pm25:"+ float(tempfile[1]))
-    tempfile.close()
+    lcd.write("pm25:"+ str(tempfile[1]))
+    file.close()
 
 @nav.on(nav.RIGHT)
 def handle_right(ch, evt):
     lcd.clear()
     lcd.set_cursor_position(0,0)
-    tempfile = open('temp.txt', 'r').readlines()
-    lcd.write("temp:" + float(tempfile[2]))
+    file = open('temp.txt', 'r')
+    tempfile = file.readlines()
+    lcd.write("temp:" + str(tempfile[2]))
     lcd.set_cursor_position(0, 1)
-    lcd.write("humidity:"+ float(tempfile[3]))
-    tempfile.close()
+    lcd.write("humidity:"+ str(tempfile[3]))
+    file.close()
     
+file = open('temp.txt', 'w')
+file.write('0.0\n0.0\n0.0\n0.0')
+file.close()
+
 backlight.off()  #clears colours
 client = mqtt.Client()
 client.connect("mqtt.unixweb.de",1883,60)  #connects to the broker
