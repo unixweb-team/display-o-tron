@@ -18,6 +18,9 @@ import dothat.backlight as backlight
 import dothat.lcd as lcd  #import for display
 import dothat.touch as nav  #import for buttons
 
+global display_num
+display_num = 0
+
 def on_connect(client, userdata, flags, rc):
     print("Connected with result code " +str(rc))
     client.subscribe('#')
@@ -45,6 +48,10 @@ def on_message(client, userdata, msg):  #triggers on an update
     if msg.topic.find('/374586/') != -1:  #checks if the topic is the needed one
         value = str(msg.payload).strip("b")
         value = value.strip("'")
+        
+        value = float("{0:.2f}".format(value)) # ensure value is to two d.p
+        value = str(value)
+        
         if msg.topic.find('sensor1') != -1:
             replace_line(0, value)
             
@@ -57,6 +64,23 @@ def on_message(client, userdata, msg):  #triggers on an update
             
         if msg.topic.find('sensor4') != -1:
             replace_line(3, value)
+            
+        file = open('temp.txt', 'r')
+        tempfile = file.readlines()
+        
+        if display_num == 0:
+            lcd.set_cursor_position(0, 0)
+            lcd.write("pm10:      "+ str(tempfile[0]))
+            lcd.set_cursor_position(0, 1)
+            lcd.write("pm25:      "+ str(tempfile[1]))
+            
+        elif display_num == 1:
+            lcd.set_cursor_position(0, 0)
+            lcd.write("temp:      "+ str(tempfile[2]))
+            lcd.set_cursor_position(0, 1)
+            lcd.write("humidity:  "+ str(tempfile[3]))
+            
+        file.close()
 
 @nav.on(nav.LEFT)
 def handle_left(ch, evt):
@@ -67,6 +91,8 @@ def handle_left(ch, evt):
     lcd.write("pm10:" + str(tempfile[0]))
     lcd.set_cursor_position(0, 1)
     lcd.write("pm25:"+ str(tempfile[1]))
+    global display_num
+    display_num = 0
     file.close()
 
 @nav.on(nav.RIGHT)
@@ -78,6 +104,8 @@ def handle_right(ch, evt):
     lcd.write("temp:" + str(tempfile[2]))
     lcd.set_cursor_position(0, 1)
     lcd.write("humidity:"+ str(tempfile[3]))
+    global display_num
+    display_num = 1
     file.close()
     
 file = open('temp.txt', 'w')
