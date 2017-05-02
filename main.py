@@ -4,10 +4,10 @@
 #Author: Callum Pritchard, Joachim Hummel
 #Project Name: Display-o-Tron Weather
 #Project Description: Getting weather sensor data from mqtt, parsing the data and then displaying it to the display
-#Version Number: 0.7
-#Date: 28/4/17
+#Version Number: 0.8
+#Date: 2/5/17
 #Release State: Alpha testing
-#Changes: Adding skeleton values to temp.txt so it functions correctly
+#Changes: Removing incorrect characters, also pushing values to the extreme right
 
 #needed commands
 #pip3 install paho-mqtt
@@ -70,15 +70,23 @@ def on_message(client, userdata, msg):  #triggers on an update
         
         if display_num == 0:
             lcd.set_cursor_position(0, 0)
-            lcd.write("pm10:      "+ str(tempfile[0]))
+            lcd.write("pm10:")
+            lcd.set_cursor_position(10, 0)
+            lcd.write(str(tempfile[0]))
             lcd.set_cursor_position(0, 1)
-            lcd.write("pm25:      "+ str(tempfile[1]))
+            lcd.write("pm25:")
+            lcd.set_cursor_position(0, 1)
+            lcd.write(str(tempfile[1]))
             
         elif display_num == 1:
             lcd.set_cursor_position(0, 0)
-            lcd.write("temp:      "+ str(tempfile[2]))
+            lcd.write("temp:")
+            lcd.set_cursor_position(10, 0)
+            lcd.write(str(tempfile[2]))
             lcd.set_cursor_position(0, 1)
-            lcd.write("humidity:  "+ str(tempfile[3]))
+            lcd.write("humidity:")
+            lcd.set_cursor_position(0, 1)
+            lcd.write(str(tempfile[3]))
             
         file.close()
 
